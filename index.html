@@ -89,13 +89,11 @@
         e.preventDefault();
 
         const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-        const email = params.get('email');
-
+        const access_token = params.get('token');  // Supabase uses 'access_token' for authentication
         const password = document.getElementById("password").value;
         const verify = document.getElementById("verify").value;
-
         const messageElem = document.getElementById("message");
+
         messageElem.textContent = "";
 
         if (password !== verify) {
@@ -104,23 +102,30 @@
             return;
         }
 
-        // Perform the reset request
+        if (!access_token) {
+            messageElem.textContent = "Invalid or missing reset token.";
+            messageElem.classList.add("error");
+            return;
+        }
+
         try {
-            const response = await fetch("https://hictnkegsuxeephjzfza.supabase.co", {
-                method: "POST",
+            const response = await fetch("https://hictnkegsuxeephjzfza.supabase.co/auth/v1/user", {
+                method: "PUT",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${access_token}`  // Supabase requires Bearer Token
                 },
-                body: JSON.stringify({ email, token, password })
+                body: JSON.stringify({ password })
             });
 
             const data = await response.json();
+
             if (response.ok) {
                 messageElem.textContent = "Password reset successful! You can now log in with your new password.";
                 messageElem.classList.remove("error");
                 messageElem.classList.add("message");
             } else {
-                messageElem.textContent = data.message || "There was an issue resetting your password.";
+                messageElem.textContent = data.error?.message || "There was an issue resetting your password.";
                 messageElem.classList.add("error");
             }
         } catch (error) {
@@ -129,6 +134,7 @@
         }
     });
 </script>
+
 
 </body>
 </html>

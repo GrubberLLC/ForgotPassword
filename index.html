@@ -110,12 +110,11 @@
 
         try {
             const response = await fetch("https://hictnkegsuxeephjzfza.supabase.co/auth/v1/user", {
-                method: "PUT",
+                method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${access_token}`  // Supabase requires Bearer Token
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ password })
+                body: JSON.stringify({ email, token, password })
             });
 
             const data = await response.json();
